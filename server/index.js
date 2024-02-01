@@ -15,9 +15,13 @@ app.use(express.json()); //req.body
 app.post("/todos", async(req,res) =>{
     //await
     try{
+        const { description } = req.body;
+        const newTodo = await pool.query(
+            "INSERT INTO todo (description) VALUES($1) RETURNING *",
+            [description]
+        );
 
-        console.log(req.body);
-
+        res.json(newTodo.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
@@ -25,10 +29,46 @@ app.post("/todos", async(req,res) =>{
 
 //get all todos
 
+app.get("/todos", async(req, res) => {
+    try {
+        const allTodos = await pool.query("SELECT * FROM todo");
+        res.json(allTodos.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get a todo
+app.get("/todos/:id", async(req, res) => {
+    try {
+        const { id } = req.params;
+        const todo = await pool.query("SELECT * FROM todo WHERE todo_id = $1",
+         [id]
+         );
+        res.json(todo.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 //update a todo
+app.put("/todos/:id", async(req, res) => {
+    try {
+        const { id } = req.params;
+        const { description } = req.body;
+        const todo = await pool.query("UPDATE todo SET description = $1 WHERE  todo_id = $2",
+        [description, id]
+        );
+        res.json("todo was updated");
+        res.json(todo.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
 
 //delete a todo
 
+//IF YOU WANNA CONNECT THEN DO "cd 'C:\Users\realk\OneDrive\Desktop\PERN ToDo\server' THEN node index"
 app.listen(5000, () => {
     console.log("server has started on port 5000");
 });
