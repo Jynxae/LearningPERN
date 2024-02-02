@@ -67,6 +67,19 @@ app.put("/todos/:id", async(req, res) => {
 });
 
 //delete a todo
+app.delete("/todos/:id", async(req, res) => {
+    try {
+        const { id } = req.params;
+        const todo = await pool.query("DELETE FROM todo WHERE todo_id = $1",
+        [id]
+        );
+        res.json("todo was deleted");
+        res.json(todo.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 
 //IF YOU WANNA CONNECT THEN DO "cd 'C:\Users\realk\OneDrive\Desktop\PERN ToDo\server' THEN node index"
 app.listen(5000, () => {
